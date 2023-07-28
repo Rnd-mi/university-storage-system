@@ -8,8 +8,8 @@
         <version>2.7.14</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>ru.stepanov.skypro.project</groupId>
-    <artifactId>third-course-project</artifactId>
+    <groupId>ru.hogwarts</groupId>
+    <artifactId>school</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>third-course-project</name>
     <description>third-course-project</description>
