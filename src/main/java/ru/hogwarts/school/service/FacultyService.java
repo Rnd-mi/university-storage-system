@@ -12,8 +12,8 @@ public class FacultyService {
     private long lastId = 0;
 
     public Faculty createFaculty(Faculty faculty) {
-        faculty.setId(lastId);
-        faculties.put(++lastId, faculty);
+        faculty.setId(++lastId);
+        faculties.put(lastId, faculty);
         return faculty;
     }
 
@@ -22,7 +22,10 @@ public class FacultyService {
     }
 
     public Faculty updateFacultyInfo(Faculty faculty) {
-        return faculties.put(faculty.getId(), faculty);
+        if (faculties.containsKey(faculty.getId())) {
+            return faculties.put(faculty.getId(), faculty);
+        }
+        return null;
     }
 
     public Faculty deleteFaculty(long id) {
