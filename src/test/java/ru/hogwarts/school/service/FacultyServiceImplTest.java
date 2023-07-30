@@ -4,13 +4,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.hogwarts.school.model.Faculty;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static ru.hogwarts.school.constants.Constants.*;
 
-public class FacultyServiceTest {
-    FacultyService out = new FacultyService();
+public class FacultyServiceImplTest {
+    FacultyService out = new FacultyServiceImpl();
 
     @BeforeEach
     public void setUp() {
@@ -33,7 +35,7 @@ public class FacultyServiceTest {
 
     @Test
     public void test_updateFacultyInfo() {
-        out.updateFacultyInfo(new Faculty(1, TEST2, TEST2));
+        out.updateFaculty(new Faculty(1, TEST2, TEST2));
         assertEquals(TEST2, out.getFaculty(1).getName());
         assertEquals(TEST2, out.getFaculty(1).getColor());
     }
@@ -46,10 +48,10 @@ public class FacultyServiceTest {
 
     @Test
     public void test_getFacultiesOfColor() {
-        List<Faculty> actual = out.getFacultiesOfColor(TEST);
+        List<Faculty> actual = new ArrayList<>(out.getFacultiesOfColor(TEST));
         assertEquals(3, actual.size());
         out.createFaculty(new Faculty(ID, TEST2, TEST2));
-        List<Faculty> actual2 = out.getFacultiesOfColor(TEST2);
+        List<Faculty> actual2 = new ArrayList<>(out.getFacultiesOfColor(TEST2));
         assertEquals(1, actual2.size());
     }
 }

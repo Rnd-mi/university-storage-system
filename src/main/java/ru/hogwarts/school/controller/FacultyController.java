@@ -3,16 +3,16 @@ package ru.hogwarts.school.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Faculty;
-import ru.hogwarts.school.service.FacultyService;
+import ru.hogwarts.school.service.FacultyServiceImpl;
 
-import java.util.List;
+import java.util.Collection;
 
 @RestController
 @RequestMapping("/faculty")
 public class FacultyController {
-    private final FacultyService facultyService;
+    private final FacultyServiceImpl facultyService;
 
-    public FacultyController(FacultyService facultyService) {
+    public FacultyController(FacultyServiceImpl facultyService) {
         this.facultyService = facultyService;
     }
 
@@ -32,7 +32,7 @@ public class FacultyController {
 
     @PutMapping
     public ResponseEntity<Faculty> updateFacultyInfo(@RequestBody Faculty faculty) {
-        Faculty updated = facultyService.updateFacultyInfo(faculty);
+        Faculty updated = facultyService.updateFaculty(faculty);
         if (updated == null) {
             return ResponseEntity.badRequest().build();
         }
@@ -49,11 +49,11 @@ public class FacultyController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Faculty>> getFacultiesOfColor(@RequestParam (required = false) String color) {
+    public ResponseEntity<Collection<Faculty>> getFacultiesOfColor(@RequestParam (required = false) String color) {
         if (color == null || color.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
-        List<Faculty> faculties = facultyService.getFacultiesOfColor(color);
+        Collection<Faculty> faculties = facultyService.getFacultiesOfColor(color);
 
         if (faculties.isEmpty()) {
             return ResponseEntity.notFound().build();

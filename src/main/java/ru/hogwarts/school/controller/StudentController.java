@@ -3,16 +3,16 @@ package ru.hogwarts.school.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Student;
-import ru.hogwarts.school.service.StudentService;
+import ru.hogwarts.school.service.StudentServiceImpl;
 
-import java.util.List;
+import java.util.Collection;
 
 @RestController
 @RequestMapping("/student")
 public class StudentController {
-    private final StudentService studentService;
+    private final StudentServiceImpl studentService;
 
-    public StudentController(StudentService studentService) {
+    public StudentController(StudentServiceImpl studentService) {
         this.studentService = studentService;
     }
 
@@ -32,7 +32,7 @@ public class StudentController {
 
     @PutMapping
     public ResponseEntity<Student> updateStudentInfo(@RequestBody Student student) {
-        Student updated = studentService.updateStudentInfo(student);
+        Student updated = studentService.updateStudent(student);
         if (updated == null) {
             return ResponseEntity.badRequest().build();
         }
@@ -49,11 +49,11 @@ public class StudentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Student>> getStudentsOfAge(@RequestParam (required = false) Integer age) {
+    public ResponseEntity<Collection<Student>> getStudentsOfAge(@RequestParam (required = false) Integer age) {
         if (age < 0) {
             return ResponseEntity.badRequest().build();
         }
-        List<Student> students = studentService.getStudentsOfAge(age);
+        Collection<Student> students = studentService.getStudentsOfAge(age);
 
         if (students.isEmpty()) {
             return ResponseEntity.notFound().build();
