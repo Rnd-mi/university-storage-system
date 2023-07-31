@@ -1,8 +1,15 @@
 package ru.hogwarts.school.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+
 import java.util.Objects;
 
+@Entity
 public class Faculty {
+    @Id
+    @GeneratedValue
     private long id;
     private String name;
     private String color;
@@ -11,6 +18,10 @@ public class Faculty {
         this.id = id;
         this.name = name;
         this.color = color;
+    }
+
+    public Faculty() {
+
     }
 
     public long getId() {
