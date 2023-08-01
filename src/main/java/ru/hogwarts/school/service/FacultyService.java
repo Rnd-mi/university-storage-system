@@ -10,9 +10,11 @@ public interface FacultyService {
 
     Faculty getFaculty(long id);
 
-    Faculty deleteFaculty(long id);
+    void deleteFaculty(long id);
 
     Faculty updateFaculty(Faculty faculty);
 
     Collection<Faculty> getFacultiesOfColor(String color);
+
+    Collection<Faculty> getAll();
 }

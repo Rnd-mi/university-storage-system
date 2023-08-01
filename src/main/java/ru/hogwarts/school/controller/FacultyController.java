@@ -8,7 +8,7 @@ import ru.hogwarts.school.service.FacultyServiceImpl;
 import java.util.Collection;
 
 @RestController
-@RequestMapping("/faculty")
+@RequestMapping("/faculties")
 public class FacultyController {
     private final FacultyServiceImpl facultyService;
 
@@ -22,42 +22,28 @@ public class FacultyController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Faculty> getFaculty(@PathVariable long id) {
-        Faculty faculty = facultyService.getFaculty(id);
-        if (faculty == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(faculty);
+    public Faculty getFaculty(@PathVariable long id) {
+        return facultyService.getFaculty(id);
     }
 
     @PutMapping
-    public ResponseEntity<Faculty> updateFacultyInfo(@RequestBody Faculty faculty) {
-        Faculty updated = facultyService.updateFaculty(faculty);
-        if (updated == null) {
-            return ResponseEntity.badRequest().build();
-        }
-        return ResponseEntity.ok(faculty);
+    public Faculty updateFacultyInfo(@RequestBody Faculty faculty) {
+        return facultyService.updateFaculty(faculty);
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<Faculty> deleteFaculty(@PathVariable long id) {
-        Faculty deleted = facultyService.deleteFaculty(id);
-        if (deleted == null) {
-            return ResponseEntity.badRequest().build();
-        }
-        return ResponseEntity.ok(deleted);
+        facultyService.deleteFaculty(id);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping
-    public ResponseEntity<Collection<Faculty>> getFacultiesOfColor(@RequestParam (required = false) String color) {
-        if (color == null || color.isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-        Collection<Faculty> faculties = facultyService.getFacultiesOfColor(color);
+    public Collection<Faculty> getFacultiesOfColor(@RequestParam (required = false) String color) {
+        return facultyService.getFacultiesOfColor(color);
+    }
 
-        if (faculties.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(faculties);
+    @GetMapping("/all")
+    public Collection<Faculty> getAll() {
+        return facultyService.getAll();
     }
 }
