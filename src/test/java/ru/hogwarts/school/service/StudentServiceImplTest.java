@@ -2,7 +2,8 @@ package ru.hogwarts.school.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.hogwarts.school.exception.BadAgeException;
+import ru.hogwarts.school.exception.FacultyNotFoundException;
+import ru.hogwarts.school.exception.InvalidStudentPropsException;
 import ru.hogwarts.school.exception.StudentNotFoundException;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
@@ -12,8 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static ru.hogwarts.school.constants.Constants.*;
@@ -39,7 +39,7 @@ public class StudentServiceImplTest {
 
     @Test
     public void createStudent_shouldThrowIfInvalidAge() {
-        assertThrows(BadAgeException.class, () -> out.createStudent(new Student(ID, TEST, INVALID_AGE)));
+        assertThrows(InvalidStudentPropsException.class, () -> out.createStudent(new Student(ID, TEST, INVALID_AGE)));
     }
 
     @Test
@@ -84,13 +84,22 @@ public class StudentServiceImplTest {
 
     @Test
     public void getStudentsOfAge_shouldThrowIfAgeIsInvalid() {
-        assertThrows(BadAgeException.class, () -> out.getStudentsOfAge(INVALID_AGE));
+        assertThrows(InvalidStudentPropsException.class, () -> out.getStudentsOfAge(INVALID_AGE));
     }
 
     @Test
     public void test_findAll() {
         when(studentRepository.findAll()).thenReturn(getAllStudents());
         assertEquals(3, out.getAll().size());
+    }
+
+    @Test
+    public void getByAgeBetween_shouldThrowIfInvalidParam() {
+        assertThrows(InvalidStudentPropsException.class, () -> out.getByAgeBetween(INVALID_AGE, AGE));
+        assertThrows(InvalidStudentPropsException.class, () -> out.getByAgeBetween(AGE, INVALID_AGE));
+
+        when(studentRepository.findByAgeBetween(AGE, AGE)).thenReturn(Collections.emptyList());
+        assertThrows(StudentNotFoundException.class, () -> out.getByAgeBetween(AGE, AGE));
     }
 
     private List<Student> getAllStudents() {

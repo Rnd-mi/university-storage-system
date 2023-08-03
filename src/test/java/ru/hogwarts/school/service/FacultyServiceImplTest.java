@@ -2,9 +2,8 @@ package ru.hogwarts.school.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.hogwarts.school.exception.BadAgeException;
-import ru.hogwarts.school.exception.BadColorException;
 import ru.hogwarts.school.exception.FacultyNotFoundException;
+import ru.hogwarts.school.exception.InvalidFacultyPropsException;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.repository.FacultyRepository;
 
@@ -40,7 +39,7 @@ FacultyServiceImplTest {
 
     @Test
     public void createFaculty_shouldThrowIfInvalidColor() {
-        assertThrows(BadColorException.class, () -> out.createFaculty(new Faculty(ID, TEST, BLANK_STR)));
+        assertThrows(InvalidFacultyPropsException.class, () -> out.createFaculty(new Faculty(ID, TEST, BLANK_STR)));
     }
 
     @Test
@@ -79,19 +78,25 @@ FacultyServiceImplTest {
 
     @Test
     public void getFacultiesOfColor_shouldThrowIfDBReturnsEmptyCollection() {
-        when(facultyRepository.findByColor(YELLOW)).thenReturn(Collections.emptyList());
+        when(facultyRepository.findByColorIgnoreCase(YELLOW)).thenReturn(Collections.emptyList());
         assertThrows(FacultyNotFoundException.class, () -> out.getFacultiesOfColor(YELLOW));
     }
 
     @Test
-    public void getFacultiesOfAge_shouldThrowIfColorIsInvalid() {
-        assertThrows(BadColorException.class, () -> out.getFacultiesOfColor(BLANK_STR));
+    public void getFacultiesOfColor_shouldThrowIfColorIsInvalid() {
+        assertThrows(FacultyNotFoundException.class, () -> out.getFacultiesOfColor(BLANK_STR));
     }
 
     @Test
     public void test_findAll() {
         when(facultyRepository.findAll()).thenReturn(getAllFaculties());
         assertEquals(3, out.getAll().size());
+    }
+
+    @Test
+    public void getFacultyByColorOrName_shouldThrowIfInvalidParam() {
+        when(facultyRepository.findByColorIgnoreCaseOrNameIgnoreCase(TEST, TEST)).thenReturn(Collections.emptyList());
+        assertThrows(FacultyNotFoundException.class, () -> out.getFacultyByColorOrName(TEST, TEST));
     }
 
     private List<Faculty> getAllFaculties() {
