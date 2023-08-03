@@ -37,12 +37,18 @@ public class FacultyController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping
-    public Collection<Faculty> getFacultiesOfColor(@RequestParam (required = false) String color) {
+    @GetMapping("/search")
+    public Collection<Faculty> getFacultiesOfColor(@RequestParam String color) {
         return facultyService.getFacultiesOfColor(color);
     }
 
-    @GetMapping("/all")
+    @GetMapping("/multi-search")
+    public Collection<Faculty> getFacultyByColorOrName(@RequestParam (required = false) String color,
+                                           @RequestParam (required = false) String name) {
+        return facultyService.getFacultyByColorOrName(color, name);
+    }
+
+    @GetMapping
     public Collection<Faculty> getAll() {
         return facultyService.getAll();
     }

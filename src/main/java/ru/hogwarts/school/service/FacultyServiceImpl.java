@@ -1,13 +1,14 @@
 package ru.hogwarts.school.service;
 
 import org.springframework.stereotype.Service;
-import ru.hogwarts.school.exception.BadColorException;
 import ru.hogwarts.school.exception.FacultyAlreadyExistsException;
 import ru.hogwarts.school.exception.FacultyNotFoundException;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.repository.FacultyRepository;
 
 import java.util.Collection;
+
+import static ru.hogwarts.school.utility.InputValidator.validateFacultyProps;
 
 @Service
 public class FacultyServiceImpl implements FacultyService {
@@ -18,7 +19,7 @@ public class FacultyServiceImpl implements FacultyService {
     }
 
     public Faculty createFaculty(Faculty faculty) {
-        checkColor(faculty.getColor());
+        validateFacultyProps(faculty);
         try {
             return facultyRepository.save(faculty);
         } catch (Exception e) {
@@ -33,6 +34,7 @@ public class FacultyServiceImpl implements FacultyService {
 
     public Faculty updateFaculty(Faculty faculty) {
         checkIfExist(faculty.getId());
+        validateFacultyProps(faculty);
         return facultyRepository.save(faculty);
     }
 
@@ -42,8 +44,7 @@ public class FacultyServiceImpl implements FacultyService {
     }
 
     public Collection<Faculty> getFacultiesOfColor(String color) {
-        checkColor(color);
-        Collection<Faculty> faculties = facultyRepository.findByColor(color);
+        Collection<Faculty> faculties = facultyRepository.findByColorIgnoreCase(color);
 
         if (faculties.isEmpty()) {
             throw new FacultyNotFoundException();
@@ -60,10 +61,14 @@ public class FacultyServiceImpl implements FacultyService {
         return faculties;
     }
 
-    private void checkColor(String color) {
-        if (color == null || color.isBlank()) {
-            throw new BadColorException();
+    @Override
+    public Collection<Faculty> getFacultyByColorOrName(String color, String name) {
+        Collection<Faculty> result = facultyRepository.findByColorIgnoreCaseOrNameIgnoreCase(color, name);
+
+        if (result.isEmpty()) {
+            throw new FacultyNotFoundException();
         }
+        return result;
     }
 
     private void checkIfExist(long id) {
