@@ -9,8 +9,10 @@ public class Student {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     @Column(unique = true)
     private String name;
+
     private int age;
 
     public Student(long id, String name, int age) {
