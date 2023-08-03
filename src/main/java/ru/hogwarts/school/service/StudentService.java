@@ -17,4 +17,6 @@ public interface StudentService {
     Collection<Student> getStudentsOfAge(int age);
 
     Collection<Student> getAll();
+
+    Collection<Student> getByAgeBetween(int from, int to);
 }

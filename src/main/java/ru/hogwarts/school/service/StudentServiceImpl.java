@@ -60,6 +60,12 @@ public class StudentServiceImpl implements StudentService {
         return students;
     }
 
+    public Collection<Student> getByAgeBetween(int from, int to) {
+        checkAge(from);
+        checkAge(to);
+        return studentRepository.findByAgeBetween(from, to);
+    }
+
     private void checkIfExist(long id) {
         if (!studentRepository.existsById(id)) {
             throw new StudentNotFoundException();
@@ -67,7 +73,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     private void checkAge(int age) {
-        if (age < 7 || age > 18) {
+        if (age < 7 || age > 20) {
             throw new BadAgeException();
         }
     }
