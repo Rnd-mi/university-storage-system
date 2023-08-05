@@ -2,7 +2,9 @@ package ru.hogwarts.school.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.service.StudentService;
 import ru.hogwarts.school.service.StudentServiceImpl;
 
 import java.util.Collection;
@@ -10,18 +12,19 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/students")
 public class StudentController {
-    private final StudentServiceImpl studentService;
+    private final StudentService studentService;
 
     public StudentController(StudentServiceImpl studentService) {
         this.studentService = studentService;
     }
 
-    @PostMapping
-    public Student createStudent(@RequestBody Student student) {
-        return studentService.createStudent(student);
+    @PostMapping("/{facultyId}")
+    public Student createStudent(@RequestBody Student student,
+                                 @PathVariable long facultyId) {
+        return studentService.createStudent(student, facultyId);
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public Student getStudent(@PathVariable long id) {
         return studentService.getStudent(id);
     }
@@ -31,7 +34,7 @@ public class StudentController {
         return studentService.updateStudent(student);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Student> deleteStudent(@PathVariable long id) {
         studentService.deleteStudent(id);
         return ResponseEntity.ok().build();
@@ -46,6 +49,11 @@ public class StudentController {
     public Collection<Student> getStudentsOfAgeBetween(@RequestParam int from,
                                                        @RequestParam int to) {
         return studentService.getByAgeBetween(from, to);
+    }
+
+    @GetMapping("/{id}/faculty")
+    public Faculty getStudentsFaculty(@PathVariable long id) {
+        return studentService.getFaculty(id);
     }
 
     @GetMapping

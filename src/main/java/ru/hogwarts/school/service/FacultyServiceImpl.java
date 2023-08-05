@@ -4,9 +4,11 @@ import org.springframework.stereotype.Service;
 import ru.hogwarts.school.exception.FacultyAlreadyExistsException;
 import ru.hogwarts.school.exception.FacultyNotFoundException;
 import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.FacultyRepository;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import static ru.hogwarts.school.utility.InputValidator.validateFacultyProps;
 
@@ -18,6 +20,7 @@ public class FacultyServiceImpl implements FacultyService {
         this.facultyRepository = facultyRepository;
     }
 
+    @Override
     public Faculty createFaculty(Faculty faculty) {
         validateFacultyProps(faculty);
         try {
@@ -27,22 +30,25 @@ public class FacultyServiceImpl implements FacultyService {
         }
     }
 
+    @Override
     public Faculty getFaculty(long id) {
         checkIfExist(id);
         return facultyRepository.findById(id).get();
     }
 
+    @Override
     public Faculty updateFaculty(Faculty faculty) {
         checkIfExist(faculty.getId());
-        validateFacultyProps(faculty);
-        return facultyRepository.save(faculty);
+        return createFaculty(faculty);
     }
 
+    @Override
     public void deleteFaculty(long id) {
         checkIfExist(id);
         facultyRepository.deleteById(id);
     }
 
+    @Override
     public Collection<Faculty> getFacultiesOfColor(String color) {
         Collection<Faculty> faculties = facultyRepository.findByColorIgnoreCase(color);
 
@@ -52,6 +58,7 @@ public class FacultyServiceImpl implements FacultyService {
         return faculties;
     }
 
+    @Override
     public Collection<Faculty> getAll() {
         Collection<Faculty> faculties = facultyRepository.findAll();
 
@@ -71,7 +78,14 @@ public class FacultyServiceImpl implements FacultyService {
         return result;
     }
 
-    private void checkIfExist(long id) {
+    @Override
+    public Collection<Student> getStudents(long id) {
+        checkIfExist(id);
+        Faculty faculty = facultyRepository.findById(id).get();
+        return faculty.getStudents();
+    }
+
+    public void checkIfExist(long id) {
         if (!facultyRepository.existsById(id)) {
             throw new FacultyNotFoundException();
         }
