@@ -2,7 +2,6 @@ package ru.hogwarts.school.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.hogwarts.school.exception.FacultyNotFoundException;
 import ru.hogwarts.school.exception.InvalidStudentPropsException;
 import ru.hogwarts.school.exception.StudentNotFoundException;
 import ru.hogwarts.school.model.Student;
@@ -20,26 +19,28 @@ import static ru.hogwarts.school.constants.Constants.*;
 
 public class StudentServiceImplTest {
     private StudentRepository studentRepository;
+    private FacultyService facultyService;
     private StudentService out;
 
     @BeforeEach
-    public void setUp() {
+    public void setup() {
         studentRepository = mock(StudentRepository.class);
-        out = new StudentServiceImpl(studentRepository);
-        when(studentRepository.save(any(Student.class))).thenReturn(new Student(ID, TEST, AGE));
+        facultyService = mock(FacultyService.class);
+        out = new StudentServiceImpl(studentRepository, facultyService);
+        when(studentRepository.save(any(Student.class))).thenReturn(new Student(ID, TEST, AGE, FACULTY));
     }
 
     @Test
     public void test_createStudent() {
-        Student actual = out.createStudent(new Student(ID, TEST, AGE));
-        Student expected = new Student(ID, TEST, AGE);
+        Student actual = out.createStudent(new Student(ID, TEST, AGE, FACULTY), FACULTY_ID);
+        Student expected = new Student(ID, TEST, AGE, FACULTY);
         assertEquals(actual, expected);
         verify(studentRepository, times(1)).save(any(Student.class));
     }
 
     @Test
     public void createStudent_shouldThrowIfInvalidAge() {
-        assertThrows(InvalidStudentPropsException.class, () -> out.createStudent(new Student(ID, TEST, INVALID_AGE)));
+        assertThrows(InvalidStudentPropsException.class, () -> out.createStudent(new Student(ID, TEST, INVALID_AGE, FACULTY), FACULTY_ID));
     }
 
     @Test
@@ -50,7 +51,7 @@ public class StudentServiceImplTest {
 
     @Test
     public void test_updateStudentInfo() {
-        Student test = new Student(1, TEST2, AGE);
+        Student test = new Student(1, TEST2, AGE, FACULTY);
         when(studentRepository.existsById(test.getId())).thenReturn(true);
         when(studentRepository.save(test)).thenReturn(test);
         when(studentRepository.findById(test.getId())).thenReturn(Optional.of(test));
@@ -67,7 +68,7 @@ public class StudentServiceImplTest {
     @Test
     public void updateStudentInfo_shouldThrowIfStudentDoesNotExist() {
         when(studentRepository.existsById(ID)).thenReturn(false);
-        assertThrows(StudentNotFoundException.class, () -> out.updateStudent(new Student(ID, TEST, AGE)));
+        assertThrows(StudentNotFoundException.class, () -> out.updateStudent(new Student(ID, TEST, AGE, FACULTY)));
     }
 
     @Test
@@ -104,9 +105,9 @@ public class StudentServiceImplTest {
 
     private List<Student> getAllStudents() {
         List<Student> students = new ArrayList<>();
-        students.add(new Student(ID, TEST, AGE));
-        students.add(new Student(ID, TEST, AGE));
-        students.add(new Student(ID, TEST, AGE));
+        students.add(new Student(ID, TEST, AGE, FACULTY));
+        students.add(new Student(ID, TEST, AGE, FACULTY));
+        students.add(new Student(ID, TEST, AGE, FACULTY));
         return students;
     }
 }
