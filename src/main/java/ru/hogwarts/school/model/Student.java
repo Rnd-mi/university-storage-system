@@ -9,14 +9,21 @@ public class Student {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     @Column(unique = true)
     private String name;
+
     private int age;
 
-    public Student(long id, String name, int age) {
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "faculty_id")
+    private Faculty faculty;
+
+    public Student(long id, String name, int age, Faculty faculty) {
         this.id = id;
         this.name = name;
         this.age = age;
+        this.faculty = faculty;
     }
 
     public Student() {
@@ -45,6 +52,14 @@ public class Student {
 
     public void setAge(int age) {
         this.age = age;
+    }
+
+    public Faculty getFaculty() {
+        return faculty;
+    }
+
+    public void setFaculty(Faculty faculty) {
+        this.faculty = faculty;
     }
 
     @Override
