@@ -26,7 +26,7 @@ public class AssociationController {
     }
 
     @PutMapping("/faculty/{facultyId}/change-students/{idList}")
-    public Collection<Student> changeFacultyForStudent(@PathVariable long facultyId,
+    public Collection<Student> changeStudentsInFaculty(@PathVariable long facultyId,
                                                        @PathVariable List<Long> idList) {
         return associationService.changeStudentsInFaculty(facultyId, idList);
     }
