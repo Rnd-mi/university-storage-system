@@ -63,17 +63,14 @@ public class AvatarServiceImpl implements AvatarService {
 
     @Override
     public Avatar findAvatar(long studentId) {
-        Avatar avatar = avatarRepository.findByStudentId(studentId);
-        return avatar == null ? new Avatar() : avatar;
+        return avatarRepository.findByStudentId(studentId).orElse(new Avatar());
     }
 
     @Override
     public Avatar findAvatarOrThrow(long studentId) {
-        Avatar avatar = avatarRepository.findByStudentId(studentId);
-        if (avatar == null) {
-            throw new AvatarNotFoundException();
-        }
-        return avatar;
+        return avatarRepository
+                .findByStudentId(studentId)
+                .orElseThrow(() -> new AvatarNotFoundException());
     }
 
     private byte[] generateImagePreview(Path filePath) throws IOException {
