@@ -6,9 +6,10 @@ import ru.hogwarts.school.exception.FacultyNotFoundException;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.FacultyRepository;
+import ru.hogwarts.school.repository.StudentRepository;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 
 import static ru.hogwarts.school.utility.InputValidator.validateFacultyProps;
 
@@ -16,8 +17,12 @@ import static ru.hogwarts.school.utility.InputValidator.validateFacultyProps;
 public class FacultyServiceImpl implements FacultyService {
     private final FacultyRepository facultyRepository;
 
-    public FacultyServiceImpl(FacultyRepository facultyRepository) {
+    private final StudentRepository studentRepository;
+
+    public FacultyServiceImpl(FacultyRepository facultyRepository,
+                              StudentRepository studentRepository) {
         this.facultyRepository = facultyRepository;
+        this.studentRepository = studentRepository;
     }
 
     @Override
@@ -45,6 +50,12 @@ public class FacultyServiceImpl implements FacultyService {
     @Override
     public void deleteFaculty(long id) {
         checkIfExist(id);
+        List<Student> students = studentRepository.findStudentsByFacultyId(id);
+
+        for (Student student : students) {
+            student.setFaculty(null);
+            studentRepository.save(student);
+        }
         facultyRepository.deleteById(id);
     }
 

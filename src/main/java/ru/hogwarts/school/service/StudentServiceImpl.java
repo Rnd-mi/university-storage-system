@@ -3,8 +3,10 @@ package ru.hogwarts.school.service;
 import org.springframework.stereotype.Service;
 import ru.hogwarts.school.exception.StudentAlreadyExists;
 import ru.hogwarts.school.exception.StudentNotFoundException;
+import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.repository.AvatarRepository;
 import ru.hogwarts.school.repository.StudentRepository;
 
 import java.util.Collection;
@@ -15,11 +17,16 @@ import static ru.hogwarts.school.utility.InputValidator.*;
 @Service
 public class StudentServiceImpl implements StudentService {
     private final StudentRepository studentRepository;
+
+    private final AvatarRepository avatarRepository;
+
     private final FacultyService facultyService;
 
     public StudentServiceImpl(StudentRepository studentRepository,
+                              AvatarRepository avatarRepository,
                               FacultyService facultyService) {
         this.studentRepository = studentRepository;
+        this.avatarRepository = avatarRepository;
         this.facultyService = facultyService;
     }
 
@@ -50,7 +57,12 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public void deleteStudent(long id) {
-        checkIfExist(id);
+        deleteAvatar(id);
+        Student student = getStudent(id);
+        Faculty faculty = student.getFaculty();
+        faculty.expelStudent(student);
+        facultyService.updateFaculty(faculty);
+
         studentRepository.deleteById(id);
     }
 
@@ -96,6 +108,13 @@ public class StudentServiceImpl implements StudentService {
     private void checkIfExist(long id) {
         if (!studentRepository.existsById(id)) {
             throw new StudentNotFoundException();
+        }
+    }
+
+    private void deleteAvatar(long studentId) {
+        Avatar avatar = avatarRepository.findByStudentId(studentId).orElse(null);
+        if (!(avatar == null)) {
+            avatarRepository.delete(avatar);
         }
     }
 }

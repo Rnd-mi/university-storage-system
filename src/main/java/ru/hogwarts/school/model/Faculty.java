@@ -60,8 +60,8 @@ public class Faculty {
         return students;
     }
 
-    public void enrollStudent(Student student) {
-        students.add(student);
+    public void expelStudent(Student student) {
+        students.remove(student);
     }
 
     @Override
