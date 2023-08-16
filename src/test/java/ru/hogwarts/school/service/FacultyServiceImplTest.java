@@ -6,6 +6,7 @@ import ru.hogwarts.school.exception.FacultyNotFoundException;
 import ru.hogwarts.school.exception.InvalidFacultyPropsException;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.repository.FacultyRepository;
+import ru.hogwarts.school.repository.StudentRepository;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,12 +21,16 @@ import static ru.hogwarts.school.constants.Constants.*;
 public class
 FacultyServiceImplTest {
     private FacultyRepository facultyRepository;
+
+    private StudentRepository studentRepository;
+
     private FacultyService out;
 
     @BeforeEach
     public void setUp() {
         facultyRepository = mock(FacultyRepository.class);
-        out = new FacultyServiceImpl(facultyRepository);
+        studentRepository = mock(StudentRepository.class);
+        out = new FacultyServiceImpl(facultyRepository, studentRepository);
         when(facultyRepository.save(any(Faculty.class))).thenReturn(new Faculty(ID, TEST, TEST));
     }
 
@@ -67,7 +72,7 @@ FacultyServiceImplTest {
     @Test
     public void updateFacultyInfo_shouldThrowIfFacultyDoesNotExist() {
         when(facultyRepository.existsById(ID)).thenReturn(false);
-        assertThrows(FacultyNotFoundException.class, () -> out.updateFaculty(new Faculty(ID, TEST, YELLOW)));
+        assertThrows(FacultyNotFoundException.class, () -> out.updateFaculty(new Faculty(ID, TEST, COLOR)));
     }
 
     @Test
@@ -78,8 +83,8 @@ FacultyServiceImplTest {
 
     @Test
     public void getFacultiesOfColor_shouldThrowIfDBReturnsEmptyCollection() {
-        when(facultyRepository.findByColorIgnoreCase(YELLOW)).thenReturn(Collections.emptyList());
-        assertThrows(FacultyNotFoundException.class, () -> out.getFacultiesOfColor(YELLOW));
+        when(facultyRepository.findByColorIgnoreCase(COLOR)).thenReturn(Collections.emptyList());
+        assertThrows(FacultyNotFoundException.class, () -> out.getFacultiesOfColor(COLOR));
     }
 
     @Test
