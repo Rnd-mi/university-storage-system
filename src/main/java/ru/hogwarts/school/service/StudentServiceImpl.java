@@ -1,6 +1,7 @@
 package ru.hogwarts.school.service;
 
 import org.springframework.stereotype.Service;
+import ru.hogwarts.school.exception.EditOrChangeFacultyPermissionException;
 import ru.hogwarts.school.exception.StudentAlreadyExists;
 import ru.hogwarts.school.exception.StudentNotFoundException;
 import ru.hogwarts.school.model.Avatar;
@@ -44,15 +45,18 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Student getStudent(long id) {
-        checkIfExist(id);
-        return studentRepository.findById(id).get();
+        return checkIfExist(id);
     }
 
     @Override
     public Student updateStudent(Student student) {
-        checkIfExist(student.getId());
-        facultyService.createFaculty(student.getFaculty());
-        return createStudent(student, student.getFaculty().getId());
+        Student studentInDb = checkIfExist(student.getId());
+
+        if (student.getFaculty() != null) {
+            throw new EditOrChangeFacultyPermissionException();
+        }
+
+        return createStudent(student, studentInDb.getFaculty().getId());
     }
 
     @Override
@@ -105,10 +109,11 @@ public class StudentServiceImpl implements StudentService {
         return student.getFaculty();
     }
 
-    private void checkIfExist(long id) {
+    private Student checkIfExist(long id) {
         if (!studentRepository.existsById(id)) {
             throw new StudentNotFoundException();
         }
+        return studentRepository.findById(id).get();
     }
 
     private void deleteAvatar(long studentId) {
