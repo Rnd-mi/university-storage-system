@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import ru.hogwarts.school.exception.InvalidStudentPropsException;
 import ru.hogwarts.school.exception.StudentNotFoundException;
 import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.repository.AvatarRepository;
 import ru.hogwarts.school.repository.StudentRepository;
 
 import java.util.ArrayList;
@@ -19,14 +20,19 @@ import static ru.hogwarts.school.constants.Constants.*;
 
 public class StudentServiceImplTest {
     private StudentRepository studentRepository;
+
+    private AvatarRepository avatarRepository;
+
     private FacultyService facultyService;
+
     private StudentService out;
 
     @BeforeEach
     public void setup() {
         studentRepository = mock(StudentRepository.class);
+        avatarRepository = mock(AvatarRepository.class);
         facultyService = mock(FacultyService.class);
-        out = new StudentServiceImpl(studentRepository, facultyService);
+        out = new StudentServiceImpl(studentRepository, avatarRepository, facultyService);
         when(studentRepository.save(any(Student.class))).thenReturn(new Student(ID, TEST, AGE, FACULTY));
     }
 
