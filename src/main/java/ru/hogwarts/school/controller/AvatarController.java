@@ -1,7 +1,6 @@
 package ru.hogwarts.school.controller;
 
 import jakarta.servlet.http.HttpServletResponse;
-import org.hibernate.result.Output;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +12,10 @@ import ru.hogwarts.school.service.AvatarService;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 
 @RestController
-@RequestMapping("/avatar")
+@RequestMapping("/avatars")
 public class AvatarController {
     private final AvatarService avatarService;
 
@@ -53,5 +53,11 @@ public class AvatarController {
             response.setStatus(HttpServletResponse.SC_OK);
             bis.transferTo(bos);
         }
+    }
+
+    @GetMapping
+    public Collection<Avatar> getAllAvatarsPerPage(@RequestParam int page,
+                                                   @RequestParam int limit) {
+        return avatarService.getAvatarsPerPage(page, limit);
     }
 }
