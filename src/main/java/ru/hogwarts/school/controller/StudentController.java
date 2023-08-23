@@ -60,4 +60,19 @@ public class StudentController {
     public Collection<Student> getAll() {
         return studentService.getAll();
     }
+
+    @GetMapping("/count")
+    public long getNumberOfStudents() {
+        return studentService.getNumberOfStudents();
+    }
+
+    @GetMapping("average-age")
+    public long getAverageAgeOfStudents() {
+        return studentService.getAverageAge();
+    }
+
+    @GetMapping("last-five")
+    public Collection<Student> getLastFiveStudents() {
+        return studentService.getLastFiveStudents();
+    }
 }
