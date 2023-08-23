@@ -1,10 +1,10 @@
 package ru.hogwarts.school.service;
 
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.multipart.MultipartFile;
 import ru.hogwarts.school.model.Avatar;
 
 import java.io.IOException;
+import java.util.Collection;
 
 public interface AvatarService {
     void uploadStudentAvatar(long studentId, MultipartFile avatar) throws IOException;
@@ -12,4 +12,6 @@ public interface AvatarService {
     Avatar findAvatar(long studentId);
 
     Avatar findAvatarOrThrow(long studentId);
+
+    Collection<Avatar> getAvatarsPerPage(int page, int limit);
 }

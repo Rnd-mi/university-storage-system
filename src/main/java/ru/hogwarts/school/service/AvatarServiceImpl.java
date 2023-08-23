@@ -1,6 +1,7 @@
 package ru.hogwarts.school.service;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,6 +17,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
@@ -71,6 +73,11 @@ public class AvatarServiceImpl implements AvatarService {
         return avatarRepository
                 .findByStudentId(studentId)
                 .orElseThrow(() -> new AvatarNotFoundException());
+    }
+
+    @Override
+    public Collection<Avatar> getAvatarsPerPage(int page, int limit) {
+        return avatarRepository.findAll(PageRequest.of(page - 1, limit)).getContent();
     }
 
     private byte[] generateImagePreview(Path filePath) throws IOException {
