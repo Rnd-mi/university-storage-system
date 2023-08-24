@@ -10,10 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.web.bind.annotation.GetMapping;
 import ru.hogwarts.school.controller.StudentController;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 
+import java.util.Collection;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -119,7 +121,8 @@ class TestRestTemplateStudent {
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode students = restTemplate.getForObject(getUrlWithPort() + "/search?age=" + AGE, JsonNode.class);
-        List<Student> studentsOfAge = mapper.convertValue(students, new TypeReference<>() {});
+        List<Student> studentsOfAge = mapper.convertValue(students, new TypeReference<>() {
+        });
 
         for (Student student : studentsOfAge) {
             assertEquals(student.getAge(), AGE);
@@ -166,7 +169,8 @@ class TestRestTemplateStudent {
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode students = restTemplate.getForObject(getUrlWithPort(), JsonNode.class);
-        List<Student> allStudents = mapper.convertValue(students, new TypeReference<>() {});
+        List<Student> allStudents = mapper.convertValue(students, new TypeReference<>() {
+        });
         assertTrue(allStudents.contains(student));
         assertTrue(allStudents.contains(student2));
 
@@ -174,6 +178,32 @@ class TestRestTemplateStudent {
         deleteTestStudent(student2.getId());
     }
 
+    @Test
+    public void testGetNumberOfStudents() {
+        long id1 = createTestStudent(STUDENT).getId();
+        long id2 = createTestStudent(STUDENT2).getId();
+
+        assertEquals(2, restTemplate.getForObject(getUrlWithPort() + "/count", int.class));
+
+        deleteTestStudent(id1);
+        assertEquals(1, restTemplate.getForObject(getUrlWithPort() + "/count", int.class));
+
+        deleteTestStudent(id2);
+        assertEquals(0, restTemplate.getForObject(getUrlWithPort() + "/count", int.class));
+    }
+
+    @Test
+    public void testGetAverageAge() {
+        Student student1 = createTestStudent(STUDENT);
+        Student student2 = createTestStudent(STUDENT2);
+
+        int expected = (student1.getAge() + student2.getAge()) / 2;
+
+        assertEquals(expected, restTemplate.getForObject(getUrlWithPort() + "/average-age", int.class));
+
+        deleteTestStudent(student1.getId());
+        deleteTestStudent(student2.getId());
+    }
 
     private Student getStudent(long id) {
         return restTemplate.getForObject(getUrlWithPort() + "/" + id, Student.class);
