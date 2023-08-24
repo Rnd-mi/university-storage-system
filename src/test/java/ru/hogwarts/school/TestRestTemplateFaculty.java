@@ -52,12 +52,12 @@ class TestRestTemplateFaculty {
         faculty.setColor(COLOR);
         String answer = restTemplate.postForObject(getUrlWithPort(), faculty, String.class);
 
-        assertTrue(answer.contains(INVALID_FACULTY_PROPS));
+        assertTrue(answer.contains(BAD_REQUEST));
     }
 
     @Test
     public void testGetFaculty() {
-        Faculty expected = addTestFaculty(FACULTY);
+        Faculty expected = createTestFaculty(FACULTY);
         long id = expected.getId();
         Faculty actual = getFaculty(id);
         assertEquals(expected.getName(), actual.getName());
@@ -77,7 +77,7 @@ class TestRestTemplateFaculty {
 
     @Test
     public void testUpdateFaculty() {
-        Faculty faculty = addTestFaculty(FACULTY);
+        Faculty faculty = createTestFaculty(FACULTY);
         String oldName = faculty.getName();
         faculty.setName(TEST2);
 
@@ -90,7 +90,7 @@ class TestRestTemplateFaculty {
 
     @Test
     public void testDeleteFaculty() {
-        Faculty faculty = addTestFaculty(FACULTY);
+        Faculty faculty = createTestFaculty(FACULTY);
         deleteFaculty(faculty.getId());
         String answer = restTemplate.getForObject(getUrlWithPort() + "/" + faculty.getId(), String.class);
         assertTrue(answer.contains(NOT_FOUND));
@@ -98,13 +98,12 @@ class TestRestTemplateFaculty {
 
     @Test
     public void testGetFacultiesOfColor() {
-        Faculty faculty1 = addTestFaculty(FACULTY);
-        Faculty faculty2 = addTestFaculty(FACULTY2);
+        Faculty faculty1 = createTestFaculty(FACULTY);
+        Faculty faculty2 = createTestFaculty(FACULTY2);
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode faculties = restTemplate.getForObject(getUrlWithPort() + "/search?color=" + COLOR, JsonNode.class);
-        List<Faculty> facultiesOfColor = mapper.convertValue(faculties, new TypeReference<>() {
-        });
+        List<Faculty> facultiesOfColor = mapper.convertValue(faculties, new TypeReference<>() {});
 
         for (Faculty faculty : facultiesOfColor) {
             assertEquals(faculty.getColor(), COLOR);
@@ -115,8 +114,8 @@ class TestRestTemplateFaculty {
 
     @Test
     public void testFacultiesMultiSearch() {
-        Faculty faculty1 = addTestFaculty(FACULTY);
-        Faculty faculty2 = addTestFaculty(FACULTY2);
+        Faculty faculty1 = createTestFaculty(FACULTY);
+        Faculty faculty2 = createTestFaculty(FACULTY2);
 
         String url = getUrlWithPort() + "/multi-search?name=" + TEST;
         JsonNode faculties = restTemplate.getForObject(url, JsonNode.class);
@@ -145,7 +144,7 @@ class TestRestTemplateFaculty {
 
     @Test
     public void testGetFacultyStudents() {
-        Faculty faculty = addTestFaculty(FACULTY);
+        Faculty faculty = createTestFaculty(FACULTY);
         addTestStudent(faculty.getId());
 
         String url = getUrlWithPort() + "/" + faculty.getId() + "/students";
@@ -162,8 +161,8 @@ class TestRestTemplateFaculty {
 
     @Test
     public void testGetAllFaculties() {
-        Faculty faculty = addTestFaculty(FACULTY);
-        Faculty faculty2 = addTestFaculty(FACULTY2);
+        Faculty faculty = createTestFaculty(FACULTY);
+        Faculty faculty2 = createTestFaculty(FACULTY2);
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode faculties = restTemplate.getForObject(getUrlWithPort(), JsonNode.class);
@@ -180,7 +179,7 @@ class TestRestTemplateFaculty {
         return restTemplate.getForObject(getUrlWithPort() + "/" + id, Faculty.class);
     }
 
-    private Faculty addTestFaculty(Faculty faculty) {
+    private Faculty createTestFaculty(Faculty faculty) {
         return restTemplate.postForObject(getUrlWithPort(), faculty, Faculty.class);
     }
 

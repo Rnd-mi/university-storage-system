@@ -19,6 +19,5 @@ public class Constants {
     public final static Student STUDENT = new Student();
     public final static Student STUDENT2 = new Student();
     public final static String NOT_FOUND = "Not Found";
-    public final static String INVALID_STUDENT_PROPS = "2. 'age' should be in range of 7 to 20";
-    public final static String INVALID_FACULTY_PROPS = "'name' and 'color' must contains characters";
+    public final static String BAD_REQUEST = "400";
 }

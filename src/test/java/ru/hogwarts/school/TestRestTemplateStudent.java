@@ -3,6 +3,7 @@ package ru.hogwarts.school;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,12 @@ class TestRestTemplateStudent {
         STUDENT.setAge(AGE);
         STUDENT2.setName(TEST2);
         STUDENT2.setAge(AGE);
+        createTestFaculty();
+    }
+
+    @AfterEach
+    public void cleanup() {
+        deleteTestFaculty();
     }
 
     @Test
@@ -46,69 +53,69 @@ class TestRestTemplateStudent {
 
     @Test
     public void testCreateStudent() {
-        createTestFaculty();
         Student actual = restTemplate.postForObject(getUrlWithPort() + "/" + facultyId, STUDENT, Student.class);
         assertNotNull(actual);
         assertEquals(STUDENT.getAge(), actual.getAge());
         assertEquals(STUDENT.getName(), actual.getName());
 
         deleteTestStudent(actual.getId());
-        deleteTestFaculty();
     }
 
     @Test
     public void createStudent_shouldThrowIfFacultyNotPresent() {
-        String answer = restTemplate.postForObject(getUrlWithPort() + "/" + FACULTY_ID, STUDENT, String.class);
+        String answer = restTemplate.postForObject(getUrlWithPort() + "/" + ID, STUDENT, String.class);
         assertTrue(answer.contains(NOT_FOUND));
     }
 
     @Test
     public void testGetStudent() {
-        Student expected = addTestStudent(STUDENT);
+        Student expected = createTestStudent(STUDENT);
         long id = expected.getId();
         Student actual = getStudent(id);
         assertEquals(expected.getName(), actual.getName());
         assertEquals(expected.getAge(), actual.getAge());
+        System.out.println(actual);
         deleteTestStudent(id);
-
-        Student nullStudent = getStudent(id);
-        assertNull(nullStudent.getName());
     }
 
     @Test
     public void getStudent_shouldSendNotFoundMessage() {
-        String actual = restTemplate.getForObject(getUrlWithPort() + "/" + ID, String.class);
-        assertTrue(actual.contains(NOT_FOUND));
+        assertTrue(getAnswerIfGetStudent(ID).contains(NOT_FOUND));
+
+        Student nullStudent = getStudent(ID);
+        assertNull(nullStudent.getName());
+        assertEquals(0, nullStudent.getAge());
     }
 
     @Test
     public void testUpdateStudent() {
-        createTestFaculty();
-        Student student = addTestStudent(STUDENT);
+        Student student = createTestStudent(STUDENT);
         String oldName = student.getName();
+        int oldAge = student.getAge();
+        student.setFaculty(null);                   // doing this because update method won't work if we are passing faculty
         student.setName(TEST2);
+        student.setAge(AGE2);
 
         restTemplate.put(getUrlWithPort(), student);
         Student updatedStudent = getStudent(student.getId());
 
         assertNotEquals(oldName, updatedStudent.getName());
+        assertNotEquals(oldAge, updatedStudent.getAge());
         deleteTestStudent(student.getId());
-        deleteTestFaculty();
     }
 
     @Test
     public void testDeleteStudent() {
-        Student student = addTestStudent(STUDENT);
+        Student student = createTestStudent(STUDENT);
         deleteTestStudent(student.getId());
-        String actual = restTemplate.getForObject(getUrlWithPort() + "/" + student.getId(), String.class);
-        assertTrue(actual.contains(NOT_FOUND));
+        String actual2 = restTemplate.getForObject(getUrlWithPort() + "/" + student.getId(), String.class);
+        assertTrue(actual2.contains(NOT_FOUND));
     }
 
     @Test
     public void testGetStudentsOfAge() {
-        createTestFaculty();
-        Student student1 = addTestStudent(STUDENT);
-        Student student2 = addTestStudent(STUDENT2);
+        Student student1 = createTestStudent(STUDENT);
+        Student student2 = createTestStudent(STUDENT2);
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode students = restTemplate.getForObject(getUrlWithPort() + "/search?age=" + AGE, JsonNode.class);
@@ -119,15 +126,13 @@ class TestRestTemplateStudent {
         }
         deleteTestStudent(student1.getId());
         deleteTestStudent(student2.getId());
-        deleteTestFaculty();
     }
 
     @Test
     public void testGetStudentsOfAgeBetween() {
-        createTestFaculty();
         STUDENT.setAge(AGE2);
-        Student student1 = addTestStudent(STUDENT);
-        Student student2 = addTestStudent(STUDENT2);
+        Student student1 = createTestStudent(STUDENT);
+        Student student2 = createTestStudent(STUDENT2);
 
         String url = getUrlWithPort() + "/search-between?from=" + AGE2 + "&to=" + AGE;
         JsonNode students = restTemplate.getForObject(url, JsonNode.class);
@@ -135,33 +140,29 @@ class TestRestTemplateStudent {
 
         deleteTestStudent(student1.getId());
         deleteTestStudent(student2.getId());
-        deleteTestFaculty();
     }
 
     @Test
     public void getStudentsOfAgeBetween_shouldThrowIfGivenInvalidAge() {
         String url = getUrlWithPort() + "/search-between?from=" + INVALID_AGE + "&to=" + AGE;
         String answer = restTemplate.getForObject(url, String.class);
-        assertTrue(answer.contains(INVALID_STUDENT_PROPS));
+        assertTrue(answer.contains(BAD_REQUEST));
     }
 
     @Test
     public void testGetStudentsFaculty() {
-        createTestFaculty();
-        Student student = addTestStudent(STUDENT);
+        Student student = createTestStudent(STUDENT);
         String url = getUrlWithPort() + "/" + student.getId() + "/faculty";
         Faculty faculty = restTemplate.getForObject(url, Faculty.class);
         assertEquals(facultyId, faculty.getId());
 
         deleteTestStudent(student.getId());
-        deleteTestFaculty();
     }
 
     @Test
     public void testGetAllStudents() {
-        createTestFaculty();
-        Student student = addTestStudent(STUDENT);
-        Student student2 = addTestStudent(STUDENT2);
+        Student student = createTestStudent(STUDENT);
+        Student student2 = createTestStudent(STUDENT2);
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode students = restTemplate.getForObject(getUrlWithPort(), JsonNode.class);
@@ -171,7 +172,6 @@ class TestRestTemplateStudent {
 
         deleteTestStudent(student.getId());
         deleteTestStudent(student2.getId());
-        deleteTestFaculty();
     }
 
 
@@ -179,7 +179,11 @@ class TestRestTemplateStudent {
         return restTemplate.getForObject(getUrlWithPort() + "/" + id, Student.class);
     }
 
-    private Student addTestStudent(Student student) {
+    private String getAnswerIfGetStudent(long id) {
+        return restTemplate.getForObject(getUrlWithPort() + "/" + id, String.class);
+    }
+
+    private Student createTestStudent(Student student) {
         return restTemplate.postForObject(getUrlWithPort() + "/" + facultyId, student, Student.class);
     }
 
