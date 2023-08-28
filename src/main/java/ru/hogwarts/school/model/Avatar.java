@@ -2,7 +2,6 @@ package ru.hogwarts.school.model;
 
 import jakarta.persistence.*;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 @Entity(name = "avatars")
@@ -80,18 +79,11 @@ public class Avatar {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Avatar avatar = (Avatar) o;
-        return fileSize == avatar.fileSize
-                && Objects.equals(id, avatar.id)
-                && Objects.equals(filePath, avatar.filePath)
-                && Objects.equals(mediaType, avatar.mediaType)
-                && Arrays.equals(preview, avatar.preview)
-                && Objects.equals(student, avatar.student);
+        return Objects.equals(id, avatar.id);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, filePath, fileSize, mediaType, student);
-        result = 31 * result + Arrays.hashCode(preview);
-        return result;
+        return Objects.hash(id);
     }
 }
