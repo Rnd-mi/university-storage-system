@@ -1,0 +1,3 @@
+databaseChangelog:
+  -include:
+    file: liquibase/scripts/student-and-faculty-indexes.sql
