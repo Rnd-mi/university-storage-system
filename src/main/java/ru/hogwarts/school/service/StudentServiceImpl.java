@@ -15,8 +15,9 @@ import ru.hogwarts.school.repository.StudentRepository;
 import java.util.Collection;
 import java.util.List;
 
-import static ru.hogwarts.school.utility.InputValidator.*;
-import static ru.hogwarts.school.utility.MessageGenerator.getMsgIfMethodInvoked;
+import static ru.hogwarts.school.utility.InputValidator.validateAge;
+import static ru.hogwarts.school.utility.InputValidator.validateStudentProps;
+import static ru.hogwarts.school.utility.MessageGenerator.*;
 
 @Service
 public class StudentServiceImpl implements StudentService {
@@ -45,6 +46,7 @@ public class StudentServiceImpl implements StudentService {
         try {
             return studentRepository.save(student);
         } catch (Exception e) {
+            logger.error(getMsgWhenException(getAlreadyExistException(), student));
             throw new StudentAlreadyExists();
         }
     }
@@ -61,6 +63,7 @@ public class StudentServiceImpl implements StudentService {
         Student studentInDb = checkIfExist(student.getId());
 
         if (student.getFaculty() != null) {
+            logger.error(getMsgWhenException(getPermissionException()));
             throw new EditOrChangeFacultyPermissionException();
         }
 
@@ -70,8 +73,8 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public void deleteStudent(long id) {
         logger.info(getMsgIfMethodInvoked("deleteStudent"));
-        deleteAvatar(id);
         Student student = getStudent(id);
+        deleteAvatarIfExist(id);
         Faculty faculty = student.getFaculty();
         faculty.expelStudent(student);
         facultyService.updateFaculty(faculty);
@@ -86,6 +89,7 @@ public class StudentServiceImpl implements StudentService {
         Collection<Student> students = studentRepository.findByAge(age);
 
         if (students.isEmpty()) {
+            logger.error(getMsgWhenException(getNotFoundException()));
             throw new StudentNotFoundException();
         }
         return students;
@@ -97,6 +101,7 @@ public class StudentServiceImpl implements StudentService {
         Collection<Student> students = studentRepository.findAll();
 
         if (students.isEmpty()) {
+            logger.error(getMsgWhenException(getNotFoundException()));
             throw new StudentNotFoundException();
         }
         return students;
@@ -110,6 +115,7 @@ public class StudentServiceImpl implements StudentService {
 
         List<Student> result = studentRepository.findByAgeBetween(from, to);
         if (result.isEmpty()) {
+            logger.error(getMsgWhenException(getNotFoundException()));
             throw new StudentNotFoundException();
         }
         return result;
@@ -141,18 +147,31 @@ public class StudentServiceImpl implements StudentService {
     }
 
     private Student checkIfExist(long id) {
-        logger.info(getMsgIfMethodInvoked("checkIfExist"));
+        logger.debug(getMsgIfMethodInvoked("checkIfExist"));
         if (!studentRepository.existsById(id)) {
+            logger.error(getMsgWhenException(getNotFoundException(), id));
             throw new StudentNotFoundException();
         }
         return studentRepository.findById(id).get();
     }
 
-    private void deleteAvatar(long studentId) {
-        logger.info(getMsgIfMethodInvoked("deleteAvatar"));
+    private void deleteAvatarIfExist(long studentId) {
+        logger.debug(getMsgIfMethodInvoked("deleteAvatar"));
         Avatar avatar = avatarRepository.findByStudentId(studentId).orElse(null);
         if (!(avatar == null)) {
             avatarRepository.delete(avatar);
         }
+    }
+
+    private String getNotFoundException() {
+        return "StudentNotFoundException";
+    }
+
+    private String getAlreadyExistException() {
+        return "StudentNotFoundException";
+    }
+
+    private String getPermissionException() {
+        return "EditOrChangeFacultyPermissionException";
     }
 }
