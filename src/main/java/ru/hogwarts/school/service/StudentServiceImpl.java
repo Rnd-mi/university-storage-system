@@ -11,14 +11,12 @@ import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.AvatarRepository;
 import ru.hogwarts.school.repository.StudentRepository;
-import ru.hogwarts.school.utility.MessageGenerator;
 
 import java.util.Collection;
 import java.util.List;
 
 import static ru.hogwarts.school.utility.InputValidator.validateAge;
 import static ru.hogwarts.school.utility.InputValidator.validateStudentProps;
-import static ru.hogwarts.school.utility.MessageGenerator.*;
 
 @Service
 public class StudentServiceImpl implements StudentService {
@@ -40,31 +38,32 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Student createStudent(Student student, long facultyId) {
-        logger.info(generateMsgIfMethodInvoked("createStudent"));
+        logThatMethodInvoked("createStudent");
         validateStudentProps(student);
         Faculty faculty = facultyService.getFaculty(facultyId);
         student.setFaculty(faculty);
         try {
             return studentRepository.save(student);
         } catch (Exception e) {
-            logger.error(MessageGenerator.generateMsgWhenException(getAlreadyExistsException(), student));
+            logger.error("Attempt to create student which already in repo. {}", student);
             throw new StudentAlreadyExistsException();
         }
     }
 
     @Override
     public Student getStudent(long id) {
-        logger.info(generateMsgIfMethodInvoked("getStudent"));
+        logThatMethodInvoked("getStudent");
         return checkIfExist(id);
     }
 
     @Override
     public Student updateStudent(Student student) {
-        logger.info(generateMsgIfMethodInvoked("updateStudent"));
+        logThatMethodInvoked("updateStudent");
         Student studentInDb = checkIfExist(student.getId());
 
         if (student.getFaculty() != null) {
-            logger.error(generateMsgWhenException(getPermissionException()));
+            logger.error("User was trying to pass not null faculty, " +
+                         "and possibly had a purpose to change student's faculty or edit it");
             throw new EditOrChangeFacultyPermissionException();
         }
 
@@ -73,10 +72,11 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public void deleteStudent(long id) {
-        logger.info(generateMsgIfMethodInvoked("deleteStudent"));
+        logThatMethodInvoked("deleteStudent");
         Student student = getStudent(id);
         deleteAvatarIfExist(id);
         Faculty faculty = student.getFaculty();
+        logger.debug("Expelling student '{}' from faculty '{}'", student, faculty);
         faculty.expelStudent(student);
         facultyService.updateFaculty(faculty);
 
@@ -85,12 +85,12 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Collection<Student> getStudentsOfAge(int age) {
-        logger.info(generateMsgIfMethodInvoked("getStudentsOfAge"));
+        logThatMethodInvoked("getStudentsOfAge");
         validateAge(age);
         Collection<Student> students = studentRepository.findByAge(age);
 
         if (students.isEmpty()) {
-            logger.error(generateMsgWhenException(getNotFoundException()));
+            logger.error("There are no students of age = {}", age);
             throw new StudentNotFoundException();
         }
         return students;
@@ -98,11 +98,11 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Collection<Student> getAll() {
-        logger.info(generateMsgIfMethodInvoked("getAll"));
+        logThatMethodInvoked("getAll");
         Collection<Student> students = studentRepository.findAll();
 
         if (students.isEmpty()) {
-            logger.error(generateMsgWhenException(getNotFoundException()));
+            logger.error("Repository of students is empty");
             throw new StudentNotFoundException();
         }
         return students;
@@ -110,13 +110,13 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Collection<Student> getByAgeBetween(int from, int to) {
-        logger.info(generateMsgIfMethodInvoked("getByAgeBetween"));
+        logThatMethodInvoked("getByAgeBetween");
         validateAge(from);
         validateAge(to);
 
         List<Student> result = studentRepository.findByAgeBetween(from, to);
         if (result.isEmpty()) {
-            logger.error(generateMsgWhenException(getNotFoundException()));
+            logger.error("There are no students of age from {} to {}", from, to);
             throw new StudentNotFoundException();
         }
         return result;
@@ -124,55 +124,46 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public long getNumberOfStudents() {
-        logger.info(generateMsgIfMethodInvoked("getNumberOfStudents"));
+        logThatMethodInvoked("getNumberOfStudents");
         return studentRepository.countAllStudents();
     }
 
     @Override
     public long getAverageAge() {
-        logger.info(generateMsgIfMethodInvoked("getAverageAge"));
+        logThatMethodInvoked("getAverageAge");
         return studentRepository.getAverageAge();
     }
 
     @Override
     public List<Student> getLastFiveStudents() {
-        logger.info(generateMsgIfMethodInvoked("getLastFiveStudents"));
+        logThatMethodInvoked("getLastFiveStudents");
         return studentRepository.findLastFiveStudents();
     }
 
     @Override
     public Faculty getFaculty(long id) {
-        logger.info(generateMsgIfMethodInvoked("getFaculty"));
+        logThatMethodInvoked("getFaculty");
         Student student = getStudent(id);
         return student.getFaculty();
     }
 
     private Student checkIfExist(long id) {
-        logger.debug(generateMsgIfMethodInvoked("checkIfExist"));
         if (!studentRepository.existsById(id)) {
-            logger.error(MessageGenerator.generateMsgWhenException(getNotFoundException(), id));
+            logger.error("Student with id = {} doesn't exist", id);
             throw new StudentNotFoundException();
         }
         return studentRepository.findById(id).get();
     }
 
     private void deleteAvatarIfExist(long studentId) {
-        logger.debug(generateMsgIfMethodInvoked("deleteAvatar"));
+        logThatMethodInvoked("deleteAvatarIfExist");
         Avatar avatar = avatarRepository.findByStudentId(studentId).orElse(null);
         if (!(avatar == null)) {
             avatarRepository.delete(avatar);
         }
     }
 
-    private String getNotFoundException() {
-        return "StudentNotFoundException";
-    }
-
-    private String getAlreadyExistsException() {
-        return "StudentAlreadyExistsException";
-    }
-
-    private String getPermissionException() {
-        return "EditOrChangeFacultyPermissionException";
+    private void logThatMethodInvoked(String methodName) {
+        logger.info("Method {} was invoked", methodName);
     }
 }

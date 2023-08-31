@@ -8,8 +8,6 @@ import ru.hogwarts.school.model.Student;
 import java.util.Collection;
 import java.util.List;
 
-import static ru.hogwarts.school.utility.MessageGenerator.generateMsgIfMethodInvoked;
-
 @Service
 public class AssociationServiceImpl implements AssociationService {
     private final StudentService studentService;
@@ -25,18 +23,22 @@ public class AssociationServiceImpl implements AssociationService {
 
     @Override
     public Student changeFacultyForStudent(long studentId, long facultyId) {
-        logger.info(generateMsgIfMethodInvoked("changeFacultyForStudent"));
+        logWhenMethodInvoked("changeFacultyForStudent");
         Student student = studentService.getStudent(studentId);
         return studentService.createStudent(student, facultyId);
     }
 
     @Override
     public Collection<Student> changeStudentsInFaculty(long facultyId, List<Long> idList) {
-        logger.info(generateMsgIfMethodInvoked("changeStudentsInFaculty"));
+        logWhenMethodInvoked("changeStudentsInFaculty");
         for (Long id : idList) {
             Student student = studentService.getStudent(id);
             studentService.createStudent(student, facultyId);
         }
         return facultyService.getStudents(facultyId);
+    }
+
+    private void logWhenMethodInvoked(String methodName) {
+        logger.info("Method {} was invoked", methodName);
     }
 }
