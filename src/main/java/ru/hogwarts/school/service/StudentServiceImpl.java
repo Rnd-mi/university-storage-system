@@ -11,6 +11,7 @@ import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.AvatarRepository;
 import ru.hogwarts.school.repository.StudentRepository;
+import ru.hogwarts.school.utility.MessageGenerator;
 
 import java.util.Collection;
 import java.util.List;
@@ -39,31 +40,31 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Student createStudent(Student student, long facultyId) {
-        logger.info(getMsgIfMethodInvoked("createStudent"));
+        logger.info(generateMsgIfMethodInvoked("createStudent"));
         validateStudentProps(student);
         Faculty faculty = facultyService.getFaculty(facultyId);
         student.setFaculty(faculty);
         try {
             return studentRepository.save(student);
         } catch (Exception e) {
-            logger.error(getMsgWhenException(getAlreadyExistsException(), student));
+            logger.error(MessageGenerator.generateMsgWhenException(getAlreadyExistsException(), student));
             throw new StudentAlreadyExistsException();
         }
     }
 
     @Override
     public Student getStudent(long id) {
-        logger.info(getMsgIfMethodInvoked("getStudent"));
+        logger.info(generateMsgIfMethodInvoked("getStudent"));
         return checkIfExist(id);
     }
 
     @Override
     public Student updateStudent(Student student) {
-        logger.info(getMsgIfMethodInvoked("updateStudent"));
+        logger.info(generateMsgIfMethodInvoked("updateStudent"));
         Student studentInDb = checkIfExist(student.getId());
 
         if (student.getFaculty() != null) {
-            logger.error(getMsgWhenException(getPermissionException()));
+            logger.error(generateMsgWhenException(getPermissionException()));
             throw new EditOrChangeFacultyPermissionException();
         }
 
@@ -72,7 +73,7 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public void deleteStudent(long id) {
-        logger.info(getMsgIfMethodInvoked("deleteStudent"));
+        logger.info(generateMsgIfMethodInvoked("deleteStudent"));
         Student student = getStudent(id);
         deleteAvatarIfExist(id);
         Faculty faculty = student.getFaculty();
@@ -84,12 +85,12 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Collection<Student> getStudentsOfAge(int age) {
-        logger.info(getMsgIfMethodInvoked("getStudentsOfAge"));
+        logger.info(generateMsgIfMethodInvoked("getStudentsOfAge"));
         validateAge(age);
         Collection<Student> students = studentRepository.findByAge(age);
 
         if (students.isEmpty()) {
-            logger.error(getMsgWhenException(getNotFoundException()));
+            logger.error(generateMsgWhenException(getNotFoundException()));
             throw new StudentNotFoundException();
         }
         return students;
@@ -97,11 +98,11 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Collection<Student> getAll() {
-        logger.info(getMsgIfMethodInvoked("getAll"));
+        logger.info(generateMsgIfMethodInvoked("getAll"));
         Collection<Student> students = studentRepository.findAll();
 
         if (students.isEmpty()) {
-            logger.error(getMsgWhenException(getNotFoundException()));
+            logger.error(generateMsgWhenException(getNotFoundException()));
             throw new StudentNotFoundException();
         }
         return students;
@@ -109,13 +110,13 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Collection<Student> getByAgeBetween(int from, int to) {
-        logger.info(getMsgIfMethodInvoked("getByAgeBetween"));
+        logger.info(generateMsgIfMethodInvoked("getByAgeBetween"));
         validateAge(from);
         validateAge(to);
 
         List<Student> result = studentRepository.findByAgeBetween(from, to);
         if (result.isEmpty()) {
-            logger.error(getMsgWhenException(getNotFoundException()));
+            logger.error(generateMsgWhenException(getNotFoundException()));
             throw new StudentNotFoundException();
         }
         return result;
@@ -123,40 +124,40 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public long getNumberOfStudents() {
-        logger.info(getMsgIfMethodInvoked("getNumberOfStudents"));
+        logger.info(generateMsgIfMethodInvoked("getNumberOfStudents"));
         return studentRepository.countAllStudents();
     }
 
     @Override
     public long getAverageAge() {
-        logger.info(getMsgIfMethodInvoked("getAverageAge"));
+        logger.info(generateMsgIfMethodInvoked("getAverageAge"));
         return studentRepository.getAverageAge();
     }
 
     @Override
     public List<Student> getLastFiveStudents() {
-        logger.info(getMsgIfMethodInvoked("getLastFiveStudents"));
+        logger.info(generateMsgIfMethodInvoked("getLastFiveStudents"));
         return studentRepository.findLastFiveStudents();
     }
 
     @Override
     public Faculty getFaculty(long id) {
-        logger.info(getMsgIfMethodInvoked("getFaculty"));
+        logger.info(generateMsgIfMethodInvoked("getFaculty"));
         Student student = getStudent(id);
         return student.getFaculty();
     }
 
     private Student checkIfExist(long id) {
-        logger.debug(getMsgIfMethodInvoked("checkIfExist"));
+        logger.debug(generateMsgIfMethodInvoked("checkIfExist"));
         if (!studentRepository.existsById(id)) {
-            logger.error(getMsgWhenException(getNotFoundException(), id));
+            logger.error(MessageGenerator.generateMsgWhenException(getNotFoundException(), id));
             throw new StudentNotFoundException();
         }
         return studentRepository.findById(id).get();
     }
 
     private void deleteAvatarIfExist(long studentId) {
-        logger.debug(getMsgIfMethodInvoked("deleteAvatar"));
+        logger.debug(generateMsgIfMethodInvoked("deleteAvatar"));
         Avatar avatar = avatarRepository.findByStudentId(studentId).orElse(null);
         if (!(avatar == null)) {
             avatarRepository.delete(avatar);
