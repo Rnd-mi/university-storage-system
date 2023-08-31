@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.hogwarts.school.exception.EditOrChangeFacultyPermissionException;
-import ru.hogwarts.school.exception.StudentAlreadyExists;
+import ru.hogwarts.school.exception.StudentAlreadyExistsException;
 import ru.hogwarts.school.exception.StudentNotFoundException;
 import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.model.Faculty;
@@ -46,8 +46,8 @@ public class StudentServiceImpl implements StudentService {
         try {
             return studentRepository.save(student);
         } catch (Exception e) {
-            logger.error(getMsgWhenException(getAlreadyExistException(), student));
-            throw new StudentAlreadyExists();
+            logger.error(getMsgWhenException(getAlreadyExistsException(), student));
+            throw new StudentAlreadyExistsException();
         }
     }
 
@@ -167,8 +167,8 @@ public class StudentServiceImpl implements StudentService {
         return "StudentNotFoundException";
     }
 
-    private String getAlreadyExistException() {
-        return "StudentNotFoundException";
+    private String getAlreadyExistsException() {
+        return "StudentAlreadyExistsException";
     }
 
     private String getPermissionException() {
