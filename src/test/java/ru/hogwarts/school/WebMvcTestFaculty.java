@@ -238,9 +238,9 @@ public class WebMvcTestFaculty {
         return FACULTY;
     }
 
-    private Student getTestStudent(String name) {
+    private Student getTestStudent(long id, String name) {
         Student student = new Student();
-        student.setId(ID);
+        student.setId(id);
         student.setName(name);
         student.setAge(AGE);
         student.setFaculty(FACULTY);
@@ -248,7 +248,7 @@ public class WebMvcTestFaculty {
     }
 
     private Set<Student> getStudents() {
-        return Set.of(getTestStudent(TEST), getTestStudent(TEST2));
+        return Set.of(getTestStudent(ID, TEST), getTestStudent(ID2, TEST2));
     }
 
     private void whenFacultyIsAccessed(Faculty faculty) {

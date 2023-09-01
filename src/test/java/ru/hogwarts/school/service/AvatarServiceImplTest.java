@@ -6,9 +6,12 @@ import ru.hogwarts.school.exception.AvatarNotFoundException;
 import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.repository.AvatarRepository;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static ru.hogwarts.school.constants.Constants.ID;
 
 public class AvatarServiceImplTest {
@@ -25,13 +28,13 @@ public class AvatarServiceImplTest {
 
     @Test
     public void findAvatar_shouldReturnNewAvatarIfStudentHasNoAvatar() {
-        when(avatarRepository.findByStudentId(ID)).thenReturn(null);
+        when(avatarRepository.findByStudentId(ID)).thenReturn(Optional.of(new Avatar()));
         assertEquals(new Avatar(), out.findAvatar(ID));
     }
 
     @Test
     public void findAvatarOrThrow_shouldThrowIfStudentHasNoAvatar() {
-        when(avatarRepository.findByStudentId(ID)).thenReturn(null);
+        when(avatarRepository.findByStudentId(ID)).thenReturn(Optional.empty());
         assertThrows(AvatarNotFoundException.class, () -> out.findAvatarOrThrow(ID));
     }
 }

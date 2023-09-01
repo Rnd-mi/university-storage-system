@@ -5,5 +5,5 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(value = HttpStatus.BAD_REQUEST,
                 reason = "Such a student already exists")
-public class StudentAlreadyExists extends RuntimeException {
+public class StudentAlreadyExistsException extends RuntimeException {
 }

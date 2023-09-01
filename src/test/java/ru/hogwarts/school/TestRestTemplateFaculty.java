@@ -3,7 +3,7 @@ package ru.hogwarts.school;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -70,7 +70,8 @@ class TestRestTemplateFaculty {
     }
 
     @Test
-    public void getFaculty_shouldSendNotFoundMessage() {
+    public void
+    getFaculty_shouldSendNotFoundMessage() {
         String actual = restTemplate.getForObject(getUrlWithPort() + "/" + ID, String.class);
         assertTrue(actual.contains(NOT_FOUND));
     }
