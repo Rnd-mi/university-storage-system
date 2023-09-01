@@ -57,18 +57,19 @@ public class StudentServiceImplTest {
 
     @Test
     public void test_updateStudentInfo() {
-        Student test = new Student(1, TEST2, AGE, FACULTY);
-        when(studentRepository.existsById(test.getId())).thenReturn(true);
-        when(studentRepository.save(test)).thenReturn(test);
-        when(studentRepository.findById(test.getId())).thenReturn(Optional.of(test));
+        Student student = new Student(1, TEST2, AGE, null);
+        Student studentInDb = new Student(1, TEST2, AGE, FACULTY);
+        when(studentRepository.existsById(student.getId())).thenReturn(true);
+        when(studentRepository.save(student)).thenReturn(student);
+        when(studentRepository.findById(student.getId())).thenReturn(Optional.of(studentInDb));
 
         assertEquals(TEST2, out.getStudent(1).getName());
         assertEquals(AGE, out.getStudent(1).getAge());
 
-        out.updateStudent(test);
+        out.updateStudent(student);
 
-        verify(studentRepository, times(1)).save(test);
-        verify(studentRepository, times(3)).existsById(test.getId());
+        verify(studentRepository, times(1)).save(student);
+        verify(studentRepository, times(3)).existsById(student.getId());
     }
 
     @Test

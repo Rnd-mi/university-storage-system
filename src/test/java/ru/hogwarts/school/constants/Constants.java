@@ -8,6 +8,7 @@ public class Constants {
     public final static String TEST2 = "test2";
     public final static String TEST3 = "test3";
     public final static long ID = 10;
+    public final static long ID2 = 15;
     public final static int AGE = 15;
     public final static int AGE2 = 11;
     public final static long FACULTY_ID = 13;
