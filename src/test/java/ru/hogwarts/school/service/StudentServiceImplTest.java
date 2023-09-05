@@ -8,10 +8,9 @@ import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.AvatarRepository;
 import ru.hogwarts.school.repository.StudentRepository;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -108,6 +107,28 @@ public class StudentServiceImplTest {
 
         when(studentRepository.findByAgeBetween(AGE, AGE)).thenReturn(Collections.emptyList());
         assertThrows(StudentNotFoundException.class, () -> out.getByAgeBetween(AGE, AGE));
+    }
+
+    @Test
+    public void test_getStudentsNamesThatStartsWithA() {
+        List<Student> students = getAllStudents();
+        students.add(new Student(ID, "Alex", AGE, FACULTY));
+        when(studentRepository.findAll()).thenReturn(students);
+
+        List<String> actual = out.getStudentsNamesThatStartsWithA().stream().toList();
+        assertEquals(1, actual.size());
+        assertEquals("ALEX", actual.get(0));
+    }
+
+    @Test
+    public void test_computeAverageAge() {
+        when(studentRepository.findAll()).thenReturn(getAllStudents());
+        double expected = (AGE + AGE + AGE) / (double) 3;
+        double expectedFormatted = new BigDecimal(Double.toString(expected))
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
+
+        assertEquals(expectedFormatted, out.computeAverageAge());
     }
 
     private List<Student> getAllStudents() {

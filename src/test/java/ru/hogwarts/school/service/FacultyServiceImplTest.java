@@ -8,10 +8,7 @@ import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.repository.FacultyRepository;
 import ru.hogwarts.school.repository.StudentRepository;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -102,6 +99,17 @@ FacultyServiceImplTest {
     public void getFacultyByColorOrName_shouldThrowIfInvalidParam() {
         when(facultyRepository.findByColorIgnoreCaseOrNameIgnoreCase(TEST, TEST)).thenReturn(Collections.emptyList());
         assertThrows(FacultyNotFoundException.class, () -> out.getFacultyByColorOrName(TEST, TEST));
+    }
+
+    @Test
+    public void test_getLongestFacultyName() {
+        when(facultyRepository.findAll()).thenReturn(getAllFaculties());
+        assertEquals(TEST, out.getLongestFacultyName());
+    }
+
+    @Test
+    public void getLongestFacultyName_shouldThrowIfEmptyRepository() {
+        assertThrows(FacultyNotFoundException.class, () -> out.getLongestFacultyName());
     }
 
     private List<Faculty> getAllFaculties() {
