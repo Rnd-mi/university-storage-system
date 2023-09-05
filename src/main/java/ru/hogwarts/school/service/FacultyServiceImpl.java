@@ -11,6 +11,7 @@ import ru.hogwarts.school.repository.FacultyRepository;
 import ru.hogwarts.school.repository.StudentRepository;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
 import static ru.hogwarts.school.utility.InputValidator.validateFacultyProps;
@@ -111,6 +112,14 @@ public class FacultyServiceImpl implements FacultyService {
         checkIfExist(id);
         Faculty faculty = facultyRepository.findById(id).get();
         return faculty.getStudents();
+    }
+
+    @Override
+    public String getLongestFacultyName() {
+        return facultyRepository.findAll().stream()
+                .map(el -> el.getName())
+                .max(Comparator.comparingInt(el -> el.length()))
+                .orElseThrow(() -> new FacultyNotFoundException());
     }
 
     public void checkIfExist(long id) {
