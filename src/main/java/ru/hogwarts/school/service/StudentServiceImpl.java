@@ -12,6 +12,8 @@ import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.AvatarRepository;
 import ru.hogwarts.school.repository.StudentRepository;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.List;
 
@@ -154,10 +156,14 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public double computeAverageAge() {
         logThatMethodInvoked("computeAverageAge");
-        return studentRepository.findAll().stream()
+        double result = studentRepository.findAll().stream()
                 .mapToInt(el -> el.getAge())
                 .summaryStatistics()
                 .getAverage();
+
+        return new BigDecimal(Double.toString(result))
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 
     @Override
