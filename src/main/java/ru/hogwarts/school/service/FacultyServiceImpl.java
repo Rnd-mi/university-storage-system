@@ -116,6 +116,7 @@ public class FacultyServiceImpl implements FacultyService {
 
     @Override
     public String getLongestFacultyName() {
+        logThatMethodInvoked("getLongestFacultyName");
         return facultyRepository.findAll().stream()
                 .map(el -> el.getName())
                 .max(Comparator.comparingInt(el -> el.length()))
