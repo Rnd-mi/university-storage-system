@@ -24,4 +24,6 @@ public interface FacultyService {
     Collection<Student> getStudents(long id);
 
     void checkIfExist(long id);
+
+    String getLongestFacultyName();
 }

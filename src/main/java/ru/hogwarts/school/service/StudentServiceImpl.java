@@ -12,6 +12,8 @@ import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.AvatarRepository;
 import ru.hogwarts.school.repository.StudentRepository;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.List;
 
@@ -63,7 +65,7 @@ public class StudentServiceImpl implements StudentService {
 
         if (student.getFaculty() != null) {
             logger.error("User was trying to pass not null faculty, " +
-                         "and possibly had a purpose to change student's faculty or edit it");
+                    "and possibly had a purpose to change student's faculty or edit it");
             throw new EditOrChangeFacultyPermissionException();
         }
 
@@ -138,6 +140,30 @@ public class StudentServiceImpl implements StudentService {
     public List<Student> getLastFiveStudents() {
         logThatMethodInvoked("getLastFiveStudents");
         return studentRepository.findLastFiveStudents();
+    }
+
+    @Override
+    public Collection<String> getStudentsNamesThatStartsWithA() {
+        logThatMethodInvoked("getStudentsNamesThatStartsWithA");
+        return studentRepository.findAll().stream()
+                .parallel()
+                .filter(el -> el.getName().startsWith("A"))
+                .map(el -> el.getName().toUpperCase())
+                .sorted()
+                .toList();
+    }
+
+    @Override
+    public double computeAverageAge() {
+        logThatMethodInvoked("computeAverageAge");
+        double result = studentRepository.findAll().stream()
+                .mapToInt(el -> el.getAge())
+                .summaryStatistics()
+                .getAverage();
+
+        return new BigDecimal(Double.toString(result))
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 
     @Override
