@@ -85,4 +85,17 @@ public class StudentController {
     public double getAverageAge() {
         return studentService.computeAverageAge();
     }
+
+    @GetMapping("/print-names-in-console")
+    public ResponseEntity<Void> printStudentsNamesInConsole() {
+        studentService.printNamesInConsole();
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/print-names-in-console/in-order")
+    public ResponseEntity<Void> printStudentsNamesInConsoleInOrder() {
+        studentService.printNamesInConsoleInOrder();
+        return ResponseEntity.ok().build();
+    }
+
 }
