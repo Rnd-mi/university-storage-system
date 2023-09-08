@@ -21,6 +21,8 @@ public interface StudentService {
 
     Collection<Student> getByAgeBetween(int from, int to);
 
+    void printNamesInConsoleInOrder();
+
     Faculty getFaculty(long id);
 
     long getNumberOfStudents();
@@ -32,4 +34,6 @@ public interface StudentService {
     Collection<String> getStudentsNamesThatStartsWithA();
 
     double computeAverageAge();
+
+    void printNamesInConsole();
 }

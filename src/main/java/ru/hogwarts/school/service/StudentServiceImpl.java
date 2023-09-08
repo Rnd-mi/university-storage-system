@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static ru.hogwarts.school.utility.InputValidator.validateAge;
 import static ru.hogwarts.school.utility.InputValidator.validateStudentProps;
@@ -164,6 +165,67 @@ public class StudentServiceImpl implements StudentService {
         return new BigDecimal(Double.toString(result))
                 .setScale(2, RoundingMode.HALF_UP)
                 .doubleValue();
+    }
+
+    @Override
+    public void printNamesInConsole() {
+        logThatMethodInvoked("printNamesInConsole");
+        List<String> names = getAll().stream()
+                .limit(6)
+                .map(el -> el.getName())
+                .toList();
+        Thread thread1 = new Thread(() -> {
+            System.out.println(names.get(2));
+            System.out.println(names.get(3));
+        });
+
+        Thread thread2 = new Thread(() -> {
+            System.out.println(names.get(4));
+            System.out.println(names.get(5));
+        });
+
+        System.out.println(names);
+        System.out.println(names.get(0));
+        System.out.println(names.get(1));
+        thread1.start();
+        thread2.start();
+    }
+
+    @Override
+    public void printNamesInConsoleInOrder() {
+        logThatMethodInvoked("printNamesInConsoleInOrder");
+        AtomicBoolean flag = new AtomicBoolean(false);
+        List<String> names = getAll().stream()
+                .limit(6)
+                .map(el -> el.getName())
+                .toList();
+        Thread thread1 = new Thread(() -> {
+            printName(names, 2);
+            printName(names, 3);
+            flag.set(true);
+        });
+
+        Thread thread2 = new Thread(() -> {
+            while (!flag.get()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            printName(names, 4);
+            printName(names, 5);
+        });
+
+        System.out.println(names);
+        printName(names, 0);
+        printName(names, 1);
+        thread1.start();
+        thread2.start();
+    }
+
+    private synchronized void printName(List<String> names, int index) {
+        System.out.println(names.get(index));
     }
 
     @Override
