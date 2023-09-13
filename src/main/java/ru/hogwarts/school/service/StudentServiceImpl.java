@@ -31,6 +31,8 @@ public class StudentServiceImpl implements StudentService {
 
     private final Logger logger = LoggerFactory.getLogger(StudentServiceImpl.class);
 
+    volatile boolean flag = false;
+
     public StudentServiceImpl(StudentRepository studentRepository,
                               AvatarRepository avatarRepository,
                               FacultyService facultyService) {
@@ -194,7 +196,6 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public void printNamesInConsoleInOrder() {
         logThatMethodInvoked("printNamesInConsoleInOrder");
-        AtomicBoolean flag = new AtomicBoolean(false);
         List<String> names = getAll().stream()
                 .limit(6)
                 .map(el -> el.getName())
@@ -202,11 +203,11 @@ public class StudentServiceImpl implements StudentService {
         Thread thread1 = new Thread(() -> {
             printName(names, 2);
             printName(names, 3);
-            flag.set(true);
+            flag = true;
         });
 
         Thread thread2 = new Thread(() -> {
-            while (!flag.get()) {
+            while (!flag) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
